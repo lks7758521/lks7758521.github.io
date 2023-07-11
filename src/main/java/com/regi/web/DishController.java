@@ -16,6 +16,8 @@ import org.apache.commons.codec.language.bm.Lang;
 import org.apache.tomcat.util.threads.StopPooledThreadException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -89,21 +91,22 @@ public class DishController {
 //    }
 
     @GetMapping("/list")
+    @Cacheable(value = "dish",key = "'dish'+#dish.categoryId+'_'+#dish.status")
     public R<List<DishDto>> list(Dish dish){
-        List<DishDto> dishDtoList =null;
-        String key = "dish"+dish.getCategoryId()+"_"+dish.getStatus();
-        System.out.println(stringRedisTemplate.opsForValue().get(key));
-        dishDtoList =(List<DishDto>) JSON.parse(stringRedisTemplate.opsForValue().get(key));
-        if(dishDtoList!=null){
-            return R.success(dishDtoList);
-        }
+//        List<DishDto> dishDtoList =null;
+//        String key = "dish"+dish.getCategoryId()+"_"+dish.getStatus();
+//        System.out.println(stringRedisTemplate.opsForValue().get(key));
+//        dishDtoList =(List<DishDto>) JSON.parse(stringRedisTemplate.opsForValue().get(key));
+//        if(dishDtoList!=null){
+//            return R.success(dishDtoList);
+//        }
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
         queryWrapper.eq(Dish::getStatus,1);
         List<Dish> list = dishService.list(queryWrapper);
 
-         dishDtoList = list.stream().map((item)->{
+        List<DishDto> dishDtoList = list.stream().map((item)->{
             DishDto dishDto = new DishDto();
             BeanUtils.copyProperties(item,dishDto);
             Long categoryId = item.getCategoryId();
@@ -120,11 +123,12 @@ public class DishController {
             return dishDto;
         }).collect(Collectors.toList());
 
-        stringRedisTemplate.opsForValue().set(key,JSON.toJSONString(dishDtoList),60, TimeUnit.MINUTES);
+//        stringRedisTemplate.opsForValue().set(key,JSON.toJSONString(dishDtoList),60, TimeUnit.MINUTES);
         return R.success(dishDtoList);
     }
 
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "dish",allEntries = true)
     public R<Dish> updatestatus(@PathVariable Integer status, Long ids){
       log.info("状态id:{}",ids);
         Dish dish = new Dish();
