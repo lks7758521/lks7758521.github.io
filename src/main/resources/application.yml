@@ -7,6 +7,10 @@ spring:
     password: lks7758521
     url: jdbc:mysql:///reggie?useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    host: 192.168.0.105
+    port: 6379
+    database: 0
 mybatis-plus:
   global-config:
     db-config:
