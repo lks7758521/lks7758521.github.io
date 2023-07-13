@@ -113,7 +113,8 @@
                 mounted(){},
                 methods:{
                     goBack(){
-                        history.go(-1)
+                        const url = document.referrer
+                        history.go(-1)0
                     },
                     toAddressEditPage(item){
                         window.requestAnimationFrame(()=>{

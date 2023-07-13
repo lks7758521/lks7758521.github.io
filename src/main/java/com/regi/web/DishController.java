@@ -40,6 +40,7 @@ public class DishController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @PostMapping
+    @CacheEvict(value = "dish",allEntries = true)
     public R<String> save(@RequestBody DishDto dishDto){
         dishService.saveWithFlavor(dishDto);
         String key = "dish_"+dishDto.getCategoryId()+"1";
@@ -74,6 +75,7 @@ public class DishController {
         return R.success(dishDto);
     }
     @PutMapping
+    @CacheEvict(value = "dish",allEntries = true)
     public R<String> update(@RequestBody DishDto dishDto){
         dishService.updateWithFlavor(dishDto);
         String key = "dish_"+dishDto.getCategoryId()+"1";
