@@ -17,7 +17,6 @@ import java.io.IOException;
 public class LoginCheckFilter implements Filter {
     public AntPathMatcher antPathMatcher = new AntPathMatcher();
     @Override
-
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         log.info("拦截到请求");
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -44,6 +43,7 @@ public class LoginCheckFilter implements Filter {
             log.info("线程id为:{}",id);
             Long empId =(Long) request.getSession().getAttribute("employee");
             BaseContext.setCuerrentId(empId);
+
             filterChain.doFilter(request,response);
             return;
         }
